@@ -1,5 +1,5 @@
 // WordSprout offline helper. Change the version number when you update files.
-const CACHE = "wordsprout-v4";
+const CACHE = "wordsprout-v5";
 const FILES = ["./", "./index.html", "./manifest.json", "./icon-192.png", "./icon-512.png"];
 
 self.addEventListener("install", e => {
