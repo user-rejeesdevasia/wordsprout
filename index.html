@@ -1,0 +1,773 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>WordSprout</title>
+<meta name="description" content="Free English learning for everyone: letters, words and fun games.">
+<meta name="theme-color" content="#4caf50">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-192.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="WordSprout">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#fff8e7; --card:#ffffff; --ink:#3b2f2f; --muted:#8a7d72;
+  --green:#4caf50; --green-d:#2e7d32; --yellow:#ffca28; --red:#ef5350;
+  --shadow:0 6px 0 rgba(0,0,0,.08);
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;padding:0}
+body{font-family:'Baloo 2',system-ui,-apple-system,'Segoe UI',sans-serif;background:var(--bg);color:var(--ink);min-height:100vh;user-select:none;-webkit-user-select:none}
+button{font-family:inherit;cursor:pointer;border:none;color:inherit}
+button:active{transform:translateY(3px)}
+.app{max-width:720px;margin:0 auto;padding:16px 16px 40px}
+
+/* Header */
+header.top{display:flex;align-items:center;gap:12px;margin-bottom:16px}
+.back{background:var(--card);border-radius:16px;width:52px;height:52px;font-size:24px;box-shadow:var(--shadow);flex:none}
+.title{font-size:28px;font-weight:800;flex:1;line-height:1.1}
+.stars{background:var(--yellow);border-radius:999px;padding:6px 14px;font-weight:800;font-size:20px;box-shadow:var(--shadow);white-space:nowrap}
+.stars.bump{animation:pop .4s}
+
+/* Garden */
+.garden{background:linear-gradient(#cdeaff,#e8f5e9);border-radius:24px;padding:16px;text-align:center;box-shadow:var(--shadow);margin-bottom:18px}
+.plant{font-size:76px;line-height:1}
+.garden p{margin:6px 0 0;font-size:18px;font-weight:700}
+.garden small{color:var(--muted);font-size:15px}
+.bar{height:14px;background:#fff;border-radius:999px;overflow:hidden;margin-top:10px}
+.bar span{display:block;height:100%;background:var(--green);border-radius:999px;transition:width .5s}
+
+/* Tiles */
+.tiles{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.tile{border-radius:24px;padding:18px 10px;color:#fff;font-size:22px;font-weight:800;box-shadow:var(--shadow);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;min-height:140px;text-align:center}
+.tile .em{font-size:50px;line-height:1.1}
+.tile small{font-weight:500;font-size:15px;opacity:.95;line-height:1.2}
+
+/* Letter grid */
+.lgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(70px,1fr));gap:10px}
+.lbtn{background:var(--card);border-radius:18px;height:76px;font-size:36px;font-weight:800;box-shadow:var(--shadow);position:relative}
+.lbtn.seen::after{content:"⭐";position:absolute;top:2px;right:6px;font-size:14px}
+
+/* Big card */
+.card{background:var(--card);border-radius:28px;box-shadow:var(--shadow);padding:24px 16px;text-align:center}
+.big-letter{font-size:110px;font-weight:800;line-height:1;color:var(--green-d)}
+.big-emoji{font-size:110px;line-height:1.15;margin:8px 0}
+.word{font-size:40px;font-weight:800;line-height:1.1}
+.sub{font-size:22px;color:var(--muted);margin-top:4px}
+.row{display:flex;gap:12px;justify-content:center;margin-top:18px;flex-wrap:wrap}
+.btn{background:var(--green);color:#fff;border-radius:18px;padding:12px 22px;font-size:22px;font-weight:800;box-shadow:var(--shadow);min-width:64px}
+.btn.alt{background:var(--card);color:var(--ink)}
+.btn.yellow{background:var(--yellow);color:var(--ink)}
+.dots{display:flex;gap:6px;justify-content:center;margin-top:14px;flex-wrap:wrap}
+.dots i{width:10px;height:10px;border-radius:50%;background:#e0d6c8}
+.dots i.on{background:var(--green)}
+
+/* Games */
+.prompt{display:flex;align-items:center;justify-content:center;gap:12px;margin-bottom:16px;flex-wrap:wrap}
+.prompt .word{font-size:34px}
+.speak{background:var(--yellow);border-radius:50%;width:60px;height:60px;font-size:28px;box-shadow:var(--shadow);flex:none}
+.choices{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.choice{background:var(--card);border-radius:24px;font-size:76px;height:140px;box-shadow:var(--shadow);border:4px solid transparent}
+.choice.right{border-color:var(--green);background:#e8f5e9;animation:pop .4s}
+.progress{text-align:center;color:var(--muted);font-size:18px;margin-bottom:10px;font-weight:700}
+
+.slots{display:flex;gap:8px;justify-content:center;margin:16px 0;flex-wrap:wrap}
+.slot{width:54px;height:64px;border-radius:14px;background:#fff;border:3px dashed #d7c9b5;font-size:36px;font-weight:800;display:flex;align-items:center;justify-content:center;text-transform:lowercase}
+.slot.filled{border:3px solid var(--green);background:#e8f5e9;animation:pop .3s}
+.letters{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
+.ltile{width:60px;height:64px;border-radius:16px;background:var(--yellow);font-size:34px;font-weight:800;box-shadow:var(--shadow);text-transform:lowercase}
+.ltile.used{visibility:hidden}
+
+.shake{animation:shake .4s}
+@keyframes shake{0%,100%{transform:translateX(0)}20%,60%{transform:translateX(-8px)}40%,80%{transform:translateX(8px)}}
+@keyframes pop{0%{transform:scale(1)}50%{transform:scale(1.15)}100%{transform:scale(1)}}
+
+/* Toast */
+.toast{position:fixed;left:50%;bottom:28px;transform:translateX(-50%) scale(.8);background:var(--green-d);color:#fff;font-size:26px;font-weight:800;padding:12px 26px;border-radius:999px;opacity:0;transition:all .25s;pointer-events:none;z-index:10;white-space:nowrap}
+.toast.show{opacity:1;transform:translateX(-50%) scale(1)}
+.toast.try{background:var(--red)}
+
+.label{font-size:20px;font-weight:800;margin:4px 0 8px}
+.seg{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px}
+.segbtn{flex:1;min-width:100px;background:#f3ece0;border-radius:14px;padding:10px 8px;font-size:18px;font-weight:700}
+.segbtn.on{background:var(--green);color:#fff}
+.sel{width:100%;font-family:inherit;font-size:17px;padding:12px;border-radius:14px;border:2px solid #e0d6c8;background:#fff;color:var(--ink)}
+.hint{color:var(--muted);font-size:16px;line-height:1.45;margin:10px 0 0}
+.tile.wide{grid-column:span 2;flex-direction:row;gap:14px;min-height:110px}
+.tile.wide .em{font-size:56px}
+
+/* Stories */
+.stage{position:relative;width:100%;aspect-ratio:16/9;border-radius:24px;overflow:hidden;box-shadow:var(--shadow);container-type:inline-size;background:#cdeaff}
+.stage video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.bg-pond{background:linear-gradient(#bfe6ff 0 55%,#8fd17a 55% 68%,#5bb6e8 68%)}
+.bg-morning{background:linear-gradient(#ffd59e 0%,#ffeec7 45%,#a8dc8a 72%,#86c96a 100%)}
+.bg-home{background:linear-gradient(#ffe9d6 0 70%,#d9a877 70%)}
+.bg-park{background:linear-gradient(#bfe6ff 0 60%,#7cc767 60%)}
+.actor{position:absolute;transform:translate(-50%,-50%);line-height:1}
+.actor span{display:inline-block}
+.a-bounce{animation:a-bounce 1.2s ease-in-out infinite}
+.a-float{animation:a-float 3s ease-in-out infinite}
+.a-waddle{animation:a-waddle 1s ease-in-out infinite;transform-origin:50% 100%}
+.a-swim{animation:a-swim 6s linear infinite}
+.a-rise{animation:a-rise 2.5s ease-out both}
+.a-grow{animation:a-grow 1s cubic-bezier(.3,1.6,.5,1) both}
+.a-spin{animation:a-spin 12s linear infinite}
+.a-wave{animation:a-wave 1s ease-in-out infinite;transform-origin:70% 90%}
+.a-hearts{animation:a-hearts 3s ease-in infinite}
+.a-pulse{animation:a-pulse 1.6s ease-in-out infinite}
+.a-slide{animation:a-slide 1.4s ease-out both}
+@keyframes a-bounce{0%,100%{transform:translateY(0)}50%{transform:translateY(-18%)}}
+@keyframes a-float{0%,100%{transform:translateY(0) rotate(-3deg)}50%{transform:translateY(-8%) rotate(3deg)}}
+@keyframes a-waddle{0%,100%{transform:rotate(-8deg) translateX(-4%)}50%{transform:rotate(8deg) translateX(4%)}}
+@keyframes a-swim{0%{transform:translateX(-140%) scaleX(1)}49%{transform:translateX(140%) scaleX(1)}50%{transform:translateX(140%) scaleX(-1)}100%{transform:translateX(-140%) scaleX(-1)}}
+@keyframes a-rise{0%{transform:translateY(120%);opacity:0}100%{transform:translateY(0);opacity:1}}
+@keyframes a-grow{0%{transform:scale(0)}100%{transform:scale(1)}}
+@keyframes a-spin{to{transform:rotate(360deg)}}
+@keyframes a-wave{0%,100%{transform:rotate(-12deg)}50%{transform:rotate(14deg)}}
+@keyframes a-hearts{0%{transform:translateY(40%) scale(.6);opacity:0}20%{opacity:1}100%{transform:translateY(-160%) scale(1.1);opacity:0}}
+@keyframes a-pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.12)}}
+@keyframes a-slide{0%{transform:translateX(-150%);opacity:0}100%{transform:translateX(0);opacity:1}}
+@media (prefers-reduced-motion:reduce){.actor span{animation-duration:0s!important;animation-iteration-count:1!important}}
+.story-text{font-size:30px;font-weight:800;line-height:1.35;text-align:center;margin:18px 4px 4px}
+.story-text .w{display:inline-block;padding:0 3px;border-radius:8px;cursor:pointer}
+.story-text .w:active{background:var(--yellow)}
+.story-text.reading .w{color:var(--green-d)}
+.tapnote{text-align:center;color:var(--muted);font-size:15px;margin:2px 0 0}
+.done{text-align:center}
+.done .big-emoji{font-size:120px}
+footer{text-align:center;color:var(--muted);font-size:14px;margin-top:28px}
+
+@media (max-width:380px){
+  .tile{min-height:120px;font-size:19px}
+  .tile .em{font-size:42px}
+  .choice{height:120px;font-size:64px}
+  .slot{width:44px;height:56px;font-size:30px}
+  .ltile{width:52px;height:58px;font-size:30px}
+}
+</style>
+</head>
+<body>
+<div class="app" id="app"></div>
+<div class="toast" id="toast"></div>
+
+<script>
+/* =========================================================
+   WordSprout - free English learning
+   To add new words: edit LETTERS or THEMES below. That's all.
+   ========================================================= */
+
+const LETTERS = [
+  ["A","Apple","🍎"],["B","Ball","⚽"],["C","Cat","🐱"],["D","Dog","🐶"],
+  ["E","Egg","🥚"],["F","Fish","🐟"],["G","Grapes","🍇"],["H","Hat","🎩"],
+  ["I","Ice cream","🍦"],["J","Juice","🧃"],["K","Kite","🪁"],["L","Lion","🦁"],
+  ["M","Moon","🌙"],["N","Nose","👃"],["O","Orange","🍊"],["P","Pencil","✏️"],
+  ["Q","Queen","👸"],["R","Rabbit","🐰"],["S","Sun","☀️"],["T","Tree","🌳"],
+  ["U","Umbrella","☂️"],["V","Van","🚐"],["W","Watch","⌚"],["X","Xylophone","🎶"],
+  ["Y","Yo-yo","🪀"],["Z","Zebra","🦓"]
+];
+
+const THEMES = {
+  animals: { name:"Animals", icon:"🐾", color:"#ff9800", ask:w=>`Where is the ${w}?`,
+    words:[["cat","🐱"],["dog","🐶"],["cow","🐮"],["lion","🦁"],["fish","🐟"],["bird","🐦"],
+           ["duck","🦆"],["horse","🐴"],["frog","🐸"],["pig","🐷"],["sheep","🐑"],["monkey","🐵"]] },
+  food: { name:"Food", icon:"🍎", color:"#ef5350", ask:w=>`Where is the ${w}?`,
+    words:[["apple","🍎"],["banana","🍌"],["bread","🍞"],["egg","🥚"],["milk","🥛"],["cake","🍰"],
+           ["rice","🍚"],["carrot","🥕"],["grapes","🍇"],["mango","🥭"],["tea","🍵"],["corn","🌽"]] },
+  colours: { name:"Colours", icon:"🎨", color:"#ab47bc", ask:w=>`Which one is ${w}?`,
+    words:[["red","🔴"],["blue","🔵"],["green","🟢"],["yellow","🟡"],["orange","🟠"],
+           ["purple","🟣"],["black","⚫"],["white","⚪"],["brown","🟤"]] },
+  body: { name:"My Body", icon:"🙂", color:"#42a5f5", ask:w=>`Where is the ${w}?`,
+    words:[["eye","👁️"],["ear","👂"],["nose","👃"],["hand","✋"],["foot","🦶"],
+           ["mouth","👄"],["leg","🦵"],["tooth","🦷"],["arm","💪"]] },
+  home: { name:"My Home", icon:"🏠", color:"#26a69a", ask:w=>`Where is the ${w}?`,
+    words:[["bed","🛏️"],["door","🚪"],["chair","🪑"],["cup","☕"],["book","📖"],
+           ["clock","⏰"],["key","🔑"],["bag","🎒"],["bulb","💡"]] }
+};
+
+const PLANTS = [
+  [0,"🌰","A tiny seed"],[3,"🌱","A little sprout!"],[10,"🌿","Growing leaves!"],
+  [25,"🪴","A happy plant!"],[50,"🌳","A big tree!"],[100,"🌸","Your tree is blooming!"]
+];
+
+/* ---------- Stories ----------
+   Each scene: bg (pond, morning, home, park), text, actors and a video prompt.
+   Actor = [emoji, x%, y%, size, animation, delay seconds]
+   Animations: bounce, float, waddle, swim, rise, grow, spin, wave, hearts, pulse, slide
+   Optional AI video for a scene: put videos/<story id>-<scene number>.mp4
+   and list it in videos/videos.json. It plays instead of the animation. */
+const VIDEO_STYLE = "Cute 3D cartoon for young children, soft bright colours, simple clean background, gentle slow motion, friendly and calm, no text, 16:9. ";
+const STORIES = [
+  { id:"duck", title:"The Little Duck", icon:"🦆", color:"#ffb300",
+    scenes:[
+      { bg:"pond", text:"This is a little duck.", actors:[["🦆",50,52,22,"waddle"],["☁️",18,14,12,"float"],["☁️",80,20,10,"float",1]],
+        prompt:"A small friendly duck with a shiny green head and brown body stands on green grass beside a calm blue pond, looking at the camera and wiggling happily." },
+      { bg:"pond", text:"The duck has a green head.", actors:[["🦆",50,52,26,"pulse"],["✨",30,30,10,"pulse",.4],["✨",70,28,9,"pulse",.8]],
+        prompt:"Close-up of a friendly duck with a shiny green head and brown body, sparkles twinkling around it, sunny day." },
+      { bg:"pond", text:"The duck can swim.", actors:[["🦆",50,72,20,"float"],["🌊",22,86,12,"float",.5],["🌊",78,86,12,"float",1]],
+        prompt:"A little duck with a green head swims slowly across a calm blue pond, small gentle ripples behind it." },
+      { bg:"pond", text:"The duck sees a fish.", actors:[["🦆",28,62,18,"float"],["🐟",60,84,12,"swim"],["👀",28,40,8,"pulse"]],
+        prompt:"A little duck with a green head on a pond looks down curiously at a small blue fish swimming under the water." },
+      { bg:"pond", text:"\"Hello, fish!\" says the duck.", actors:[["🦆",32,62,20,"bounce"],["🐟",70,80,13,"bounce",.3],["👋",48,38,10,"wave"]],
+        prompt:"A cheerful little duck with a green head waves its wing to a small blue fish that pops its head out of the pond and smiles." },
+      { bg:"pond", text:"The duck is happy.", actors:[["🦆",50,58,24,"bounce"],["❤️",40,40,8,"hearts"],["❤️",60,42,7,"hearts",1],["☀️",84,16,14,"spin"]],
+        prompt:"A very happy little duck with a green head flaps its wings on the grass by the pond, hearts floating up, warm sunshine." }
+    ],
+    quiz:[
+      { q:"What colour is the duck's head?", a:"green", options:[["green","🟢"],["red","🔴"],["blue","🔵"]] },
+      { q:"What did the duck see?", a:"fish", options:[["fish","🐟"],["cat","🐱"],["cow","🐮"]] },
+      { q:"Can the duck swim?", a:"yes", options:[["yes","👍"],["no","👎"]] }
+    ] },
+
+  { id:"sun", title:"Good Morning, Sun!", icon:"☀️", color:"#ff7043",
+    scenes:[
+      { bg:"morning", text:"It is morning.", actors:[["☀️",50,40,22,"rise"],["🌳",14,70,18,"float"],["🏠",82,66,18,"grow"]],
+        prompt:"The sun slowly rises over green hills and a small cosy house, soft orange morning sky." },
+      { bg:"morning", text:"The sun is up.", actors:[["☀️",50,30,26,"spin"],["☁️",20,22,10,"float"],["☁️",80,26,10,"float",1]],
+        prompt:"A big friendly smiling sun shines in a clear morning sky with two small white clouds drifting." },
+      { bg:"morning", text:"The bird sings.", actors:[["🐦",46,46,18,"bounce"],["🎵",64,30,9,"hearts"],["🎶",72,36,8,"hearts",1.2],["🌳",18,68,18,"float"]],
+        prompt:"A small blue bird sits on a tree branch and sings happily, little musical notes floating in the air, morning light." },
+      { bg:"home", text:"The boy wakes up.", actors:[["🛏️",50,72,26,"grow"],["👦",50,46,18,"rise",.5],["☀️",86,16,10,"pulse"]],
+        prompt:"A little boy sits up in his bed and stretches his arms, sunlight coming through the window of a cosy bedroom." },
+      { bg:"home", text:"He eats an apple.", actors:[["👦",40,52,22,"bounce"],["🍎",64,56,13,"pulse"]],
+        prompt:"A little boy smiles and takes a bite of a shiny red apple in a bright kitchen." },
+      { bg:"morning", text:"\"Good morning, sun!\"", actors:[["👦",36,60,22,"bounce"],["👋",54,46,11,"wave"],["☀️",80,22,18,"spin"]],
+        prompt:"A happy little boy stands outside his house and waves at the bright smiling sun in the morning sky." }
+    ],
+    quiz:[
+      { q:"What did the boy eat?", a:"apple", options:[["apple","🍎"],["cake","🍰"],["egg","🥚"]] },
+      { q:"Who sings?", a:"bird", options:[["bird","🐦"],["dog","🐶"],["fish","🐟"]] },
+      { q:"Is it morning or night?", a:"morning", options:[["morning","☀️"],["night","🌙"]] }
+    ] },
+
+  { id:"family", title:"My Family", icon:"🏡", color:"#5c6bc0",
+    scenes:[
+      { bg:"home", text:"This is my family.", actors:[["👩",30,52,18,"grow"],["👨",50,50,19,"grow",.3],["👧",68,58,15,"grow",.6],["👶",84,64,12,"grow",.9]],
+        prompt:"A happy cartoon family of four, mum, dad, a girl and a baby, standing together in a cosy living room and smiling." },
+      { bg:"home", text:"This is my mum.", actors:[["👩",50,52,26,"pulse"],["❤️",70,30,9,"hearts"]],
+        prompt:"A kind smiling mother in a cosy living room waves gently at the camera." },
+      { bg:"home", text:"This is my dad.", actors:[["👨",48,52,26,"bounce"],["👋",70,40,11,"wave"]],
+        prompt:"A friendly smiling father in a cosy living room waves at the camera." },
+      { bg:"home", text:"This is my baby sister.", actors:[["👶",50,56,24,"bounce"],["🍼",74,62,11,"float"]],
+        prompt:"A cute baby girl sits on a soft blanket, giggling and holding a small toy." },
+      { bg:"park", text:"We play together.", actors:[["👨",22,56,16,"bounce"],["👧",44,60,14,"bounce",.3],["👩",66,56,16,"bounce",.6],["⚽",84,76,9,"bounce",.2]],
+        prompt:"A happy family plays with a ball together in a sunny green park, laughing." },
+      { bg:"park", text:"I love my family.", actors:[["🏡",50,50,26,"pulse"],["❤️",30,36,9,"hearts"],["❤️",50,30,8,"hearts",1],["❤️",70,36,9,"hearts",2]],
+        prompt:"A cosy family house in a sunny garden with soft red hearts floating up into the sky." }
+    ],
+    quiz:[
+      { q:"Who is the baby?", a:"sister", options:[["sister","👶"],["dad","👨"],["mum","👩"]] },
+      { q:"What do we do together?", a:"play", options:[["play","⚽"],["sleep","😴"],["cry","😢"]] }
+    ] }
+];
+
+const PRAISE = ["Great job!","Well done!","Super!","You got it!","Excellent!","Wonderful!"];
+
+/* ---------- Saving progress (stays on this device only) ---------- */
+function load(key, fallback){ try{ const v = localStorage.getItem(key); return v ? JSON.parse(v) : fallback; }catch(e){ return fallback; } }
+function save(key, val){ try{ localStorage.setItem(key, JSON.stringify(val)); }catch(e){} }
+
+const state = { stars: load("ws_stars", 0), seen: load("ws_seen", {}) };
+
+function addStar(n=1){
+  state.stars += n; save("ws_stars", state.stars);
+  const el = document.getElementById("starCount");
+  if(el){ el.textContent = "⭐ " + state.stars; el.classList.remove("bump"); void el.offsetWidth; el.classList.add("bump"); }
+}
+function markSeen(id){ if(!state.seen[id]){ state.seen[id] = 1; save("ws_seen", state.seen); addStar(); } }
+
+/* ---------- Voice ----------
+   Picks the most human-sounding English voice on the device,
+   speaks slowly, and pauses between parts (use "|" for a pause). */
+const hasSpeech = "speechSynthesis" in window;
+const SPEEDS = [["🐢 Very slow",0.5],["🚶 Slow",0.65],["🐇 Normal",0.85]];
+const settings = Object.assign({ voiceURI:"", rate:0.65, gap:450 }, load("ws_voice", {}));
+let voices = [], voice = null;
+
+function scoreVoice(v){
+  const n = v.name.toLowerCase(), l = (v.lang||"").toLowerCase().replace("_","-");
+  if(!l.startsWith("en")) return -999;
+  let s = 0;
+  if(/natural|neural|online|enhanced|premium|siri/.test(n)) s += 50;   // modern human-like voices
+  if(/google/.test(n)) s += 30;
+  if(/samantha|karen|moira|tessa|daniel|serena|aria|jenny|sonia|libby|neerja|ava|zoe|catherine|martha/.test(n)) s += 20;
+  if(/^en-(gb|in|us|au|ie)/.test(l)) s += 5;
+  // robotic or joke voices: push to the bottom
+  if(/compact|espeak|novelty|zarvox|whisper|bad news|good news|bells|boing|bubbles|cellos|jester|organ|trinoids|albert|fred|junior|ralph|superstar|wobble|hysterical|grandma|grandpa|rocko|shelley|flo|eddy|reed|sandy/.test(n)) s -= 60;
+  return s;
+}
+function loadVoices(){
+  if(!hasSpeech) return;
+  voices = speechSynthesis.getVoices().filter(v=>scoreVoice(v) > -999).sort((a,b)=>scoreVoice(b)-scoreVoice(a));
+  voice = voices.find(v=>v.voiceURI===settings.voiceURI) || voices[0] || null;
+  if(location.hash === "#settings") pageSettings();
+}
+if(hasSpeech){ loadVoices(); speechSynthesis.onvoiceschanged = loadVoices; }
+
+/* Recorded voice clips (made with VoiceStudio) live in the "audio" folder.
+   audio/clips.json lists which clips exist. If a clip is missing,
+   the phone's own voice is used instead. */
+let CLIPS = new Set();
+fetch("audio/clips.json", {cache:"no-cache"})
+  .then(r=>r.ok ? r.json() : [])
+  .then(a=>{ if(Array.isArray(a)) CLIPS = new Set(a); if(location.hash==="#settings") pageSettings(); })
+  .catch(()=>{});
+/* AI videos for story scenes (made with Open Higgsfield) live in "videos".
+   videos/videos.json lists them, e.g. ["duck-1","duck-2"]. */
+let VIDEOS = new Set();
+fetch("videos/videos.json", {cache:"no-cache"})
+  .then(r=>r.ok ? r.json() : [])
+  .then(a=>{ if(Array.isArray(a)) VIDEOS = new Set(a); })
+  .catch(()=>{});
+function slug(t){ return String(t).toLowerCase().replace(/['’]/g,"").replace(/[^a-z0-9]+/g,"-").replace(/^-+|-+$/g,""); }
+const CLIP_SPEED = { 0.5:0.75, 0.65:0.88, 0.85:1 };   // matches the 3 speed buttons
+let curAudio = null;
+
+function speakTTS(text, done){
+  if(!hasSpeech){ done(); return; }
+  const u = new SpeechSynthesisUtterance(text);
+  if(voice){ u.voice = voice; u.lang = voice.lang; } else { u.lang = "en-GB"; }
+  u.rate = settings.rate; u.pitch = 1.0;
+  u.onend = done; u.onerror = done;
+  speechSynthesis.speak(u);
+}
+function playClip(key, fallbackText, done){
+  let finished = false;
+  const end = ()=>{ if(!finished){ finished = true; done(); } };
+  const fallback = ()=>{ if(!finished){ finished = true; speakTTS(fallbackText, done); } };
+  const a = new Audio("audio/" + key + ".mp3");
+  a.preservesPitch = true;
+  a.playbackRate = CLIP_SPEED[settings.rate] || 0.88;
+  a.onended = end; a.onerror = fallback;
+  curAudio = a;
+  a.play().catch(fallback);
+}
+
+function splitParts(text){
+  return String(text).replace(/([.!?]["”]?)\s+/g,"$1|").split("|").map(s=>s.trim()).filter(Boolean);
+}
+let speakToken = 0;
+function say(text, whenDone){
+  stopVoice();
+  const parts = splitParts(text);
+  const token = speakToken;
+  let i = 0;
+  const next = ()=>{
+    if(token !== speakToken) return;
+    if(i >= parts.length){ if(whenDone) whenDone(); return; }
+    const part = parts[i++], key = slug(part);
+    const after = ()=>{ if(token === speakToken) setTimeout(next, settings.gap); };
+    if(CLIPS.has(key)) playClip(key, part, after); else speakTTS(part, after);
+  };
+  setTimeout(next, 60);   // small delay helps Chrome after cancel()
+}
+function stopVoice(){
+  speakToken++;
+  if(curAudio){ try{ curAudio.pause(); }catch(e){} curAudio = null; }
+  if(hasSpeech) speechSynthesis.cancel();
+}
+
+/* List of every phrase the app speaks, for VoiceStudio to record.
+   Open the site with #audio-list at the end of the link to download it. */
+const LETTER_NAMES = {a:"ay",b:"bee",c:"see",d:"dee",e:"ee",f:"eff",g:"jee",h:"aitch",i:"eye",j:"jay",k:"kay",l:"ell",m:"em",n:"en",o:"oh",p:"pee",q:"cue",r:"ar",s:"ess",t:"tee",u:"you",v:"vee",w:"double you",x:"ex",y:"why",z:"zed"};
+const EXTRA_PHRASES = ["Try again.","Well done!","You found","out of","You spelled","words.","Hello!","Let's learn English.","This is my speed."];
+function allPhrases(){
+  const raw = [];
+  "abcdefghijklmnopqrstuvwxyz".split("").forEach(c=>raw.push(c));
+  LETTERS.forEach(([L,w])=>{ raw.push(`${L} is for`); raw.push(w); });
+  Object.values(THEMES).forEach(t=>t.words.forEach(([w])=>{ raw.push(w); raw.push(t.ask(w)); }));
+  EXTRA_PHRASES.forEach(p=>raw.push(p));
+  STORIES.forEach(s=>{
+    raw.push(s.title);
+    s.scenes.forEach(sc=>{ splitParts(sc.text).forEach(p=>raw.push(p)); sc.text.replace(/["“”.,!?]/g," ").split(/\s+/).filter(Boolean).forEach(w=>raw.push(w)); });
+    s.quiz.forEach(q=>{ raw.push(q.q); q.options.forEach(o=>raw.push(o[0])); });
+  });
+  for(let n=0;n<=12;n++) raw.push(String(n));
+  const seen = {}, list = [];
+  raw.forEach(t=>{
+    const k = slug(t);
+    if(k && !seen[k]){ seen[k] = 1; list.push({ file:k, text: LETTER_NAMES[k] || t }); }
+  });
+  return list;
+}
+
+/* ---------- Little sounds ---------- */
+let actx = null;
+function tones(freqs, dur=0.12){
+  try{
+    actx = actx || new (window.AudioContext || window.webkitAudioContext)();
+    let t = actx.currentTime;
+    freqs.forEach(f=>{
+      const o = actx.createOscillator(), g = actx.createGain();
+      o.type = "sine"; o.frequency.value = f;
+      g.gain.setValueAtTime(0.0001, t);
+      g.gain.exponentialRampToValueAtTime(0.2, t+0.02);
+      g.gain.exponentialRampToValueAtTime(0.0001, t+dur);
+      o.connect(g); g.connect(actx.destination);
+      o.start(t); o.stop(t+dur+0.02); t += dur;
+    });
+  }catch(e){}
+}
+const yay = ()=>tones([523,659,784]);
+const oops = ()=>tones([300,220],0.15);
+
+/* ---------- Helpers ---------- */
+const $app = document.getElementById("app");
+const rand = arr => arr[Math.floor(Math.random()*arr.length)];
+function shuffle(a){ a = a.slice(); for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; } return a; }
+function go(hash){ location.hash = hash; }
+let toastTimer;
+function toast(msg, isTry){
+  const t = document.getElementById("toast");
+  t.textContent = msg; t.className = "toast show" + (isTry ? " try" : "");
+  clearTimeout(toastTimer); toastTimer = setTimeout(()=>t.className="toast", 1100);
+}
+function header(title, backTo, showSettings){
+  return `<header class="top">
+    ${backTo ? `<button class="back" aria-label="Back" data-go="${backTo}">⬅️</button>` : ""}
+    <div class="title">${title}</div>
+    <div class="stars" id="starCount">⭐ ${state.stars}</div>
+    ${showSettings ? `<button class="back" aria-label="Voice settings" data-go="settings">⚙️</button>` : ""}
+  </header>`;
+}
+function wire(){
+  $app.querySelectorAll("[data-go]").forEach(b=>b.onclick=()=>go(b.dataset.go));
+  $app.querySelectorAll("[data-say]").forEach(b=>b.onclick=()=>say(b.dataset.say));
+}
+function shake(el){ el.classList.remove("shake"); void el.offsetWidth; el.classList.add("shake"); }
+
+/* ---------- Pages ---------- */
+function pageHome(){
+  let cur = PLANTS[0], next = PLANTS[1];
+  PLANTS.forEach((p,i)=>{ if(state.stars >= p[0]){ cur = p; next = PLANTS[i+1] || null; } });
+  const pct = next ? Math.round((state.stars-cur[0])/(next[0]-cur[0])*100) : 100;
+  $app.innerHTML = `
+    ${header("🌱 WordSprout", null, true)}
+    <div class="garden">
+      <div class="plant">${cur[1]}</div>
+      <p>${cur[2]}</p>
+      <small>${next ? `${next[0]-state.stars} more ⭐ to grow` : "You are a star learner!"}</small>
+      <div class="bar"><span style="width:${pct}%"></span></div>
+    </div>
+    <div class="tiles">
+      <button class="tile" style="background:#4caf50" data-go="letters"><span class="em">🔤</span>ABC<small>Letters A to Z</small></button>
+      <button class="tile" style="background:#42a5f5" data-go="learn"><span class="em">📚</span>Words<small>Look and listen</small></button>
+      <button class="tile" style="background:#ff9800" data-go="find"><span class="em">🔍</span>Find It<small>Listen and tap</small></button>
+      <button class="tile" style="background:#ab47bc" data-go="spell"><span class="em">✏️</span>Spell It<small>Make the word</small></button>
+      <button class="tile wide" style="background:#ec407a" data-go="stories"><span class="em">📖</span><span>Stories<br><small>Watch, listen and answer</small></span></button>
+    </div>
+    <footer>Free for everyone · Made with ❤️ for little learners</footer>`;
+  wire();
+}
+
+function pageLetters(){
+  $app.innerHTML = `${header("ABC Letters","home")}
+    <div class="lgrid">${LETTERS.map((l,i)=>`<button class="lbtn ${state.seen["L"+l[0]]?"seen":""}" data-go="letter/${i}">${l[0]}</button>`).join("")}</div>`;
+  wire();
+}
+
+function pageLetter(i){
+  i = Math.max(0, Math.min(LETTERS.length-1, parseInt(i,10)||0));
+  const [L, word, em] = LETTERS[i];
+  const line = `${L}|${L} is for|${word}.`;
+  $app.innerHTML = `${header("Letter " + L,"letters")}
+    <div class="card">
+      <div class="big-letter">${L}${L.toLowerCase()}</div>
+      <div class="big-emoji">${em}</div>
+      <div class="word">${L} is for ${word}</div>
+      <div class="row">
+        <button class="btn alt" ${i===0?"disabled style='opacity:.4'":""} data-go="letter/${i-1}" aria-label="Previous">◀</button>
+        <button class="btn yellow" data-say="${line}">🔊 Hear</button>
+        <button class="btn alt" ${i===LETTERS.length-1?"disabled style='opacity:.4'":""} data-go="letter/${i+1}" aria-label="Next">▶</button>
+      </div>
+    </div>`;
+  wire(); markSeen("L"+L); say(line);
+}
+
+function pageThemes(mode, title){
+  $app.innerHTML = `${header(title,"home")}
+    <p class="sub" style="text-align:center;margin:0 0 14px">Choose a topic</p>
+    <div class="tiles">${Object.entries(THEMES).map(([k,t])=>
+      `<button class="tile" style="background:${t.color}" data-go="${mode}/${k}"><span class="em">${t.icon}</span>${t.name}<small>${t.words.length} words</small></button>`).join("")}
+    </div>`;
+  wire();
+}
+
+function pageLearn(key, i){
+  const t = THEMES[key]; if(!t) return go("learn");
+  i = Math.max(0, Math.min(t.words.length-1, parseInt(i,10)||0));
+  const [w, em] = t.words[i];
+  $app.innerHTML = `${header(t.name,"learn")}
+    <div class="card">
+      <div class="big-emoji">${em}</div>
+      <div class="word">${w}</div>
+      <div class="row">
+        <button class="btn alt" ${i===0?"disabled style='opacity:.4'":""} data-go="learn/${key}/${i-1}" aria-label="Previous">◀</button>
+        <button class="btn yellow" data-say="${w}">🔊 Hear</button>
+        <button class="btn alt" data-go="${i===t.words.length-1 ? "find/"+key : "learn/"+key+"/"+(i+1)}" aria-label="Next">${i===t.words.length-1?"Play 🎮":"▶"}</button>
+      </div>
+      <div class="dots">${t.words.map((_,j)=>`<i class="${j<=i?"on":""}"></i>`).join("")}</div>
+    </div>`;
+  wire(); markSeen("W"+key+w); say(w);
+}
+
+function pageDone(msg, again, backTo, spoken){
+  $app.innerHTML = `${header("Well done!",backTo)}
+    <div class="card done">
+      <div class="big-emoji">🏆</div>
+      <div class="word">${msg}</div>
+      <div class="row">
+        <button class="btn" data-go="${again}">Play again</button>
+        <button class="btn alt" data-go="home">Home 🏠</button>
+      </div>
+    </div>`;
+  wire(); yay(); say(spoken || msg);
+}
+
+/* Find It: hear a word, tap the right picture */
+function gameFind(key){
+  const t = THEMES[key]; if(!t) return go("find");
+  const ROUNDS = Math.min(8, t.words.length);
+  const order = shuffle(t.words).slice(0, ROUNDS);
+  let round = 0, score = 0;
+  const myHash = location.hash;
+
+  function show(){
+    if(location.hash !== myHash) return;
+    if(round >= ROUNDS) return pageDone(`You found ${score} of ${ROUNDS}!`, "find/"+key, "find", `Well done!|You found|${score}|out of|${ROUNDS}`);
+    const target = order[round];
+    const others = shuffle(t.words.filter(w=>w[0]!==target[0])).slice(0,3);
+    const opts = shuffle([target, ...others]);
+    const q = t.ask(target[0]);
+    let firstTry = true, locked = false;
+    $app.innerHTML = `${header("Find It · " + t.name,"find")}
+      <div class="progress">Question ${round+1} of ${ROUNDS}</div>
+      <div class="prompt"><button class="speak" aria-label="Hear again">🔊</button><div class="word">${target[0]}</div></div>
+      <div class="choices">${opts.map(o=>`<button class="choice" data-w="${o[0]}" aria-label="${o[0]}">${o[1]}</button>`).join("")}</div>`;
+    wire();
+    $app.querySelector(".speak").onclick = ()=>say(q);
+    $app.querySelectorAll(".choice").forEach(b=>b.onclick=()=>{
+      if(locked) return;
+      if(b.dataset.w === target[0]){
+        locked = true; b.classList.add("right"); yay();
+        if(firstTry){ score++; addStar(); }
+        toast(rand(PRAISE)); say(target[0]);
+        round++; setTimeout(show, 1300);
+      }else{
+        firstTry = false; shake(b); oops(); toast("Try again!", true); say("Try again.|" + q);
+      }
+    });
+    say(q);
+  }
+  show();
+}
+
+/* Spell It: tap letters in order */
+function gameSpell(key){
+  const t = THEMES[key]; if(!t) return go("spell");
+  const pool = t.words.filter(w=>/^[a-z]{2,7}$/.test(w[0]));
+  const ROUNDS = Math.min(5, pool.length);
+  const order = shuffle(pool).slice(0, ROUNDS);
+  let round = 0;
+  const myHash = location.hash;
+
+  function show(){
+    if(location.hash !== myHash) return;
+    if(round >= ROUNDS) return pageDone(`You spelled ${ROUNDS} words!`, "spell/"+key, "spell", `Well done!|You spelled|${ROUNDS}|words.`);
+    const [w, em] = order[round];
+    let pos = 0, mistakes = 0;
+    let tiles = shuffle(w.split("").map((c,i)=>({c,i})));
+    if(tiles.length > 1 && tiles.every((x,j)=>x.c===w[j])) tiles = tiles.reverse();
+    $app.innerHTML = `${header("Spell It · " + t.name,"spell")}
+      <div class="progress">Word ${round+1} of ${ROUNDS}</div>
+      <div class="card">
+        <div class="prompt"><div class="big-emoji" style="margin:0">${em}</div><button class="speak" aria-label="Hear">🔊</button></div>
+        <div class="slots">${w.split("").map(()=>`<div class="slot"></div>`).join("")}</div>
+        <div class="letters">${tiles.map(x=>`<button class="ltile">${x.c}</button>`).join("")}</div>
+      </div>`;
+    wire();
+    $app.querySelector(".speak").onclick = ()=>say(w);
+    const slots = $app.querySelectorAll(".slot");
+    $app.querySelectorAll(".ltile").forEach(b=>b.onclick=()=>{
+      if(pos >= w.length) return;
+      if(b.textContent === w[pos]){
+        slots[pos].textContent = w[pos]; slots[pos].classList.add("filled");
+        b.classList.add("used"); tones([600],0.08); pos++;
+        if(pos === w.length){
+          yay(); if(mistakes < 2) addStar(); toast(rand(PRAISE)); say(w + "|" + w.split("").join("|") + "|" + w);
+          round++; setTimeout(show, 2500 + w.length*1100);
+        }
+      }else{
+        mistakes++; shake(b); oops();
+        if(mistakes >= 2){ slots[pos].classList.add("shake"); setTimeout(()=>slots[pos] && slots[pos].classList.remove("shake"),400); toast("Next letter: " + w[pos], true); }
+        else toast("Try again!", true);
+      }
+    });
+    say(w);
+  }
+  show();
+}
+
+/* ---------- Stories ---------- */
+function pageStories(){
+  $app.innerHTML = `${header("Stories","home")}
+    <div class="tiles">${STORIES.map(s=>{
+      const seen = s.scenes.filter((_,n)=>state.seen["S"+s.id+n]).length;
+      return `<button class="tile" style="background:${s.color}" data-go="story/${s.id}/0"><span class="em">${s.icon}</span>${s.title}<small>${seen ? `${seen} of ${s.scenes.length} read` : `${s.scenes.length} pages`}</small></button>`;
+    }).join("")}</div>`;
+  wire();
+}
+
+function stageHTML(story, n){
+  const sc = story.scenes[n], vid = `${story.id}-${n+1}`;
+  if(VIDEOS.has(vid)){
+    return `<div class="stage"><video src="videos/${vid}.mp4" autoplay muted loop playsinline></video></div>`;
+  }
+  return `<div class="stage bg-${sc.bg}" role="img" aria-label="${sc.text.replace(/"/g,"")}">${
+    sc.actors.map(([e,x,y,size,anim,delay])=>
+      `<div class="actor" style="left:${x}%;top:${y}%;font-size:${size}cqw"><span class="a-${anim||"float"}" style="animation-delay:${delay||0}s">${e}</span></div>`
+    ).join("")}</div>`;
+}
+
+function pageStory(id, n){
+  const s = STORIES.find(x=>x.id===id); if(!s) return go("stories");
+  if(n === "quiz") return storyQuiz(s);
+  n = Math.max(0, Math.min(s.scenes.length-1, parseInt(n,10)||0));
+  const sc = s.scenes[n], last = n === s.scenes.length-1;
+  const words = sc.text.split(/\s+/).map(w=>{
+    const clean = w.replace(/["“”.,!?]/g,"");
+    return `<span class="w" data-word="${clean}">${w}</span>`;
+  }).join(" ");
+  $app.innerHTML = `${header(s.title,"stories")}
+    ${stageHTML(s, n)}
+    <div class="story-text" id="storyText">${words}</div>
+    <p class="tapnote">Tap a word to hear it</p>
+    <div class="row">
+      <button class="btn alt" ${n===0?"disabled style='opacity:.4'":""} data-go="story/${s.id}/${n-1}" aria-label="Previous page">◀</button>
+      <button class="btn yellow" id="readAgain">🔊 Read</button>
+      <button class="btn" data-go="story/${s.id}/${last ? "quiz" : n+1}">${last ? "Quiz ⭐" : "Next ▶"}</button>
+    </div>
+    <div class="dots">${s.scenes.map((_,j)=>`<i class="${j<=n?"on":""}"></i>`).join("")}</div>`;
+  wire();
+  const box = document.getElementById("storyText");
+  const read = ()=>{ box.classList.add("reading"); say(sc.text, ()=>box.classList.remove("reading")); };
+  document.getElementById("readAgain").onclick = read;
+  box.querySelectorAll(".w").forEach(w=>w.onclick=()=>{ box.classList.remove("reading"); say(w.dataset.word); });
+  markSeen("S"+s.id+n);
+  read();
+}
+
+function storyQuiz(s){
+  let i = 0, score = 0;
+  const myHash = location.hash;
+  function show(){
+    if(location.hash !== myHash) return;
+    if(i >= s.quiz.length) return pageDone(`You answered ${score} of ${s.quiz.length}!`, `story/${s.id}/0`, "stories", `Well done!`);
+    const q = s.quiz[i];
+    let firstTry = true, locked = false;
+    $app.innerHTML = `${header(s.title + " · Quiz", "stories")}
+      <div class="progress">Question ${i+1} of ${s.quiz.length}</div>
+      <div class="prompt"><button class="speak" aria-label="Hear again">🔊</button><div class="word" style="font-size:28px">${q.q}</div></div>
+      <div class="choices">${shuffle(q.options).map(o=>`<button class="choice" data-w="${o[0]}" aria-label="${o[0]}" style="font-size:56px">${o[1]}<div style="font-size:22px;font-weight:800">${o[0]}</div></button>`).join("")}</div>`;
+    wire();
+    $app.querySelector(".speak").onclick = ()=>say(q.q);
+    $app.querySelectorAll(".choice").forEach(b=>b.onclick=()=>{
+      if(locked) return;
+      if(b.dataset.w === q.a){
+        locked = true; b.classList.add("right"); yay();
+        if(firstTry){ score++; addStar(); }
+        toast(rand(PRAISE)); say(q.a);
+        i++; setTimeout(show, 1500);
+      }else{
+        firstTry = false; shake(b); oops(); toast("Try again!", true); say("Try again.|" + q.q);
+      }
+    });
+    say(q.q);
+  }
+  show();
+}
+
+/* Voice settings */
+function pageSettings(){
+  const opts = voices.map(v=>`<option value="${v.voiceURI.replace(/"/g,"&quot;")}" ${voice && v.voiceURI===voice.voiceURI ? "selected" : ""}>${v.name} (${v.lang})</option>`).join("");
+  $app.innerHTML = `${header("Voice","home")}
+    <div class="card" style="text-align:left">
+      <p class="label">Speed</p>
+      <div class="seg">${SPEEDS.map(([n,r])=>`<button class="segbtn ${settings.rate===r?"on":""}" data-rate="${r}">${n}</button>`).join("")}</div>
+      <p class="label">Voice</p>
+      ${CLIPS.size ? `<p class="hint" style="margin:0 0 10px;color:var(--green-d)"><b>🎙️ Recorded voice is on</b> (${CLIPS.size} clips). The phone voice below is only used for anything not recorded.</p>` : ""}
+      ${hasSpeech && voices.length
+        ? `<select id="voiceSel" class="sel">${opts}</select>
+           <p class="hint">Voices with <b>Natural</b>, <b>Online</b>, <b>Enhanced</b> or <b>Google</b> in the name sound the most human. The best one is chosen for you automatically.</p>`
+        : `<p class="hint">No English voice found on this device yet.</p>`}
+      <div class="row"><button class="btn yellow" id="testVoice">🔊 Test voice</button></div>
+      <p class="hint" style="margin-top:18px"><b>For a more human voice:</b><br>
+        • <b>iPhone/iPad:</b> Settings → Accessibility → Spoken Content → Voices → English → download an <b>Enhanced</b> or <b>Premium</b> voice.<br>
+        • <b>Android:</b> Settings → Text-to-speech → choose <b>Google</b> engine → install English voice data.<br>
+        • <b>Windows:</b> open the site in <b>Microsoft Edge</b> for its natural voices.</p>
+    </div>`;
+  wire();
+  $app.querySelectorAll("[data-rate]").forEach(b=>b.onclick=()=>{
+    settings.rate = parseFloat(b.dataset.rate); save("ws_voice", settings);
+    $app.querySelectorAll("[data-rate]").forEach(x=>x.classList.toggle("on", x===b));
+    say("This is my speed.|Apple.");
+  });
+  const sel = document.getElementById("voiceSel");
+  if(sel) sel.onchange = ()=>{
+    voice = voices.find(v=>v.voiceURI===sel.value) || voice;
+    settings.voiceURI = sel.value; save("ws_voice", settings);
+    say("Hello!|Let's learn English.");
+  };
+  document.getElementById("testVoice").onclick = ()=>say("Hello!|A is for|Apple.|Well done!");
+}
+
+/* Hidden page for the teacher/builder: download the list of phrases to record */
+function pageAudioList(){
+  const list = allPhrases();
+  const have = list.filter(x=>CLIPS.has(x.file)).length;
+  $app.innerHTML = `${header("Voice clips","home")}
+    <div class="card" style="text-align:left">
+      <p class="label">${list.length} phrases to record</p>
+      <p class="hint">Already recorded: ${have}. Download this list, put it next to <b>make-voices.bat</b>, and run it with VoiceStudio open. Only new phrases get recorded.</p>
+      <div class="row"><button class="btn" id="dl">⬇️ Download audio-list.json</button></div>
+    </div>`;
+  wire();
+  document.getElementById("dl").onclick = ()=>{
+    const blob = new Blob([JSON.stringify(list, null, 1)], {type:"application/json"});
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob); a.download = "audio-list.json";
+    document.body.appendChild(a); a.click(); a.remove();
+  };
+}
+
+/* ---------- Router (makes the phone Back button work) ---------- */
+function route(){
+  stopVoice();
+  const [page, a, b] = (location.hash.slice(1) || "home").split("/");
+  window.scrollTo(0,0);
+  switch(page){
+    case "letters": return pageLetters();
+    case "letter":  return pageLetter(a);
+    case "learn":   return a ? pageLearn(a, b) : pageThemes("learn","Words");
+    case "find":    return a ? gameFind(a) : pageThemes("find","Find It");
+    case "spell":   return a ? gameSpell(a) : pageThemes("spell","Spell It");
+    case "stories": return pageStories();
+    case "story":   return pageStory(a, b);
+    case "settings":return pageSettings();
+    case "audio-list": return pageAudioList();
+    default:        return pageHome();
+  }
+}
+window.addEventListener("hashchange", route);
+route();
+
+/* ---------- Offline / install support ---------- */
+if("serviceWorker" in navigator && location.protocol.startsWith("http")){
+  window.addEventListener("load", ()=>navigator.serviceWorker.register("sw.js").catch(()=>{}));
+}
+</script>
+</body>
+</html>
